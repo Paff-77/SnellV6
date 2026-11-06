@@ -4,10 +4,10 @@
 
 ## 一键安装或升级
 
-在服务器上以 `root` 身份运行以下命令。命令从公开仓库下载脚本，下载和 Bash 语法检查均成功后才执行，并在退出时删除临时文件。
+在服务器上以 `root` 身份运行以下命令。链接指向一个固定的安装脚本提交，避免取到缓存里的旧脚本。脚本仍会在每次运行时查找最新的 Snell v6 正式包。下载和 Bash 语法检查均成功后才执行，并在退出时删除临时文件。
 
 ```bash
-(installer=$(mktemp) && trap 'rm -f -- "$installer"' EXIT && curl -fsSL 'https://raw.githubusercontent.com/Paff-77/SnellV6/main/install-snell-v6.sh' -o "$installer" && bash -n "$installer" && bash "$installer")
+(installer=$(mktemp) && trap 'rm -f -- "$installer"' EXIT && curl --disable -fsSL 'https://raw.githubusercontent.com/Paff-77/SnellV6/57124f00d4bb10a4b033eb279329fe7b1ae057bb/install-snell-v6.sh' -o "$installer" && bash -n "$installer" && bash "$installer")
 ```
 
 普通用户把末尾的 `bash "$installer"` 改为 `sudo bash "$installer"`。如果服务器缺少 `curl`，先运行 `apt-get install -y curl`。

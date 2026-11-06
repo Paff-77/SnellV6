@@ -4,26 +4,13 @@
 
 ## 一键安装或升级
 
-仓库为私有。首次在服务器上使用时，安装 GitHub CLI，并登录有仓库读取权限的 GitHub 账号。已登录可以跳过这一步。若已用 `root` 登录，去掉下面两条 `apt-get` 命令前的 `sudo`。
+在服务器上以 `root` 身份运行以下命令。命令从公开仓库下载脚本，下载成功后才执行，并在退出时删除临时文件。
 
 ```bash
-sudo apt-get update && sudo apt-get install -y gh
-gh auth login --hostname github.com --web
+(installer=$(mktemp) && trap 'rm -f -- "$installer"' EXIT && curl -fsSL 'https://raw.githubusercontent.com/Paff-77/SnellV6/main/install-snell-v6.sh' -o "$installer" && bash "$installer")
 ```
 
-在服务器的 Bash 中一次粘贴以下整段。下载成功后才会执行安装脚本，命令退出时会清理临时文件。
-
-```bash
-(
-  installer=$(mktemp) || exit 1
-  trap 'rm -f -- "$installer"' EXIT
-  runner=(bash)
-  if (( EUID != 0 )); then runner=(sudo bash); fi
-  gh api --hostname github.com -H 'Accept: application/vnd.github.raw+json' \
-    'repos/Paff-77/SnellV6/contents/install-snell-v6.sh?ref=main' > "$installer" \
-    && "${runner[@]}" "$installer"
-)
-```
+普通用户把末尾的 `bash "$installer"` 改为 `sudo bash "$installer"`。如果服务器缺少 `curl`，先运行 `apt-get install -y curl`。
 
 - 首次安装默认监听 `31777/tcp`，同时绑定 IPv4 和 IPv6，并生成随机 PSK。要自定义首次安装端口，在命令最后的 `"$installer"` 后加端口号，例如 `32777`。
 - 升级时重新执行同一条命令。脚本沿用已有配置，包括端口和 PSK。升级后的服务启动检查失败时，脚本会尝试恢复旧二进制。

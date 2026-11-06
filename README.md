@@ -28,7 +28,7 @@ sudo journalctl -u snell -n 50 --no-pager
 
 ## Surge 客户端
 
-运行 `sudo cat /etc/snell/snell-server.conf` 查看 `listen` 和 `psk`。把下面的示例地址和 PSK 替换成自己的值，若端口有修改也一并替换。客户端需支持 `version=6`。[Surge 配置参考](https://manual.nssurge.com/policies/snell.html)
+安装或升级成功后，脚本会在终端打印当前配置文件，包括 `listen` 和 `psk`。也可以随时运行 `sudo cat /etc/snell/snell-server.conf` 查看。把下面的示例地址和 PSK 替换成自己的值，若端口有修改也一并替换。客户端需支持 `version=6`。[Surge 配置参考](https://manual.nssurge.com/policies/snell.html)
 
 ```ini
 [Proxy]

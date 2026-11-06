@@ -186,5 +186,38 @@ else
 fi
 
 systemctl enable snell.service
-printf '\nSnell server configuration (%s)\n' "$config"
-cat -- "$config"
+# Format the existing server settings as one Surge [Proxy] entry.
+if ! awk '
+    /^[[:space:]]*\[/ {
+        in_server = ($0 ~ /^[[:space:]]*\[snell-server\][[:space:]]*$/)
+        next
+    }
+    in_server && /^[[:space:]]*(listen|psk|mode)[[:space:]]*=/ {
+        separator = index($0, "=")
+        key = substr($0, 1, separator - 1)
+        value = substr($0, separator + 1)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", key)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+        settings[key] = value
+    }
+    END {
+        split(settings["listen"], listeners, ",")
+        address = listeners[1]
+        psk = settings["psk"]
+        if (!sub(/^.*:/, "", address) || address !~ /^[0-9]+[[:space:]]*$/ || psk == "") exit 1
+
+        host = ENVIRON["SNELL_SERVER_HOST"]
+        if (host == "") {
+            split(ENVIRON["SSH_CONNECTION"], ssh, " ")
+            host = ssh[3]
+        }
+        if (host == "") host = "YOUR_SERVER_IP"
+
+        if (index(psk, ",")) psk = "\"" psk "\""
+        mode = settings["mode"]
+        suffix = (mode == "" || mode == "default") ? "" : ", mode=" mode
+        printf "SnellV6 = snell, %s, %d, psk=%s, version=6%s\n", host, address + 0, psk, suffix
+    }
+' "$config"; then
+    printf 'Could not format the Surge entry. Check %s for listen and psk.\n' "$config" >&2
+fi

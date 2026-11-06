@@ -186,4 +186,5 @@ else
 fi
 
 systemctl enable snell.service
-printf 'Config: %s\nRead the PSK locally with: sudo cat %s\n' "$config" "$config"
+printf '\nSnell server configuration (%s)\n' "$config"
+cat -- "$config"
